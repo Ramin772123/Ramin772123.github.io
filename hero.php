@@ -1,0 +1,83 @@
+<?php
+include '../db.php';
+
+if (isset($_POST['submit'])) {
+    if (!empty($_FILES['image']['name'])) {
+        $filename = time() . "_" . basename($_FILES['image']['name']);
+        $tmp = $_FILES['image']['tmp_name'];
+
+        if (move_uploaded_file($tmp, "../uploads/" . $filename)) {
+            $conn->query("UPDATE setting SET hero_image='$filename' WHERE id=1");
+            echo "<script>alert('อัปเดตรูปสำเร็จ'); window.location='hero.php';</script>";
+            exit();
+        } else {
+            echo "<script>alert('อัปโหลดรูปไม่สำเร็จ');</script>";
+        }
+    }
+}
+
+$setting = $conn->query("SELECT * FROM setting WHERE id=1")->fetch_assoc();
+?>
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>เปลี่ยนรูปหน้าแรก</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">Admin Dashboard</div>
+  <div class="menu">
+    <a href="index.php">จัดการข่าว</a>
+    <a href="hero.php">เปลี่ยนรูปหน้าแรก</a>
+    <a class="logout" href="logout.php">Logout</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="form-card">
+    <h2>เปลี่ยนรูปหน้าแรก</h2>
+
+    <label>รูปปัจจุบัน</label>
+    <img
+      src="../uploads/<?php echo htmlspecialchars($setting['hero_image']); ?>"
+      id="current-preview"
+      alt="hero current"
+      style="max-width:260px; border-radius:16px; display:block; margin-bottom:16px;"
+    >
+
+    <form method="post" enctype="multipart/form-data">
+      <label>เลือกรูปใหม่</label>
+      <input type="file" name="image" accept="image/*" onchange="previewImage(event)" required>
+
+      <img
+        id="preview"
+        alt="preview"
+        style="max-width:260px; border-radius:16px; display:none; margin:16px 0;"
+      >
+
+      <button class="btn-save" type="submit" name="submit">บันทึกรูป</button>
+    </form>
+  </div>
+</div>
+
+<script>
+function previewImage(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const preview = document.getElementById('preview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>

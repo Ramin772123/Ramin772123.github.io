@@ -1,0 +1,10 @@
+<?php
+include '../db.php';
+
+$id=$_GET['id'];
+
+$sql="DELETE FROM news WHERE id='$id'";
+$conn->query($sql);
+
+header("location:index.php");
+?>

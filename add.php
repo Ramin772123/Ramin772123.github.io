@@ -1,0 +1,79 @@
+<?php
+session_start();
+include '../db.php';
+
+if(isset($_POST['submit'])){
+
+$title=$_POST['title'];
+$detail=$_POST['detail'];
+$link=$_POST['link'];
+
+$image=$_FILES['image']['name'];
+$tmp=$_FILES['image']['tmp_name'];
+
+move_uploaded_file($tmp,"../uploads/".$image);
+
+$sql="INSERT INTO news(title,detail,image,DATE,link)
+VALUES('$title','$detail','$image',NOW(),'$link')";
+
+$conn->query($sql);
+
+
+header("location:index.php");
+}
+?>
+
+<link rel="stylesheet" href="style.css">
+
+<div class="topbar">
+
+<div class="logo">Admin Dashboard</div>
+
+<div class="menu">
+<a href="index.php">จัดการข่าว</a>
+<a class="logout" href="logout.php">Logout</a>
+</div>
+
+</div>
+
+<div class="container">
+
+<div class="form-card">
+
+<h2>เพิ่มข่าว</h2>
+
+<form method="post" enctype="multipart/form-data">
+
+<label>หัวข้อข่าว</label>
+<input type="text" name="title">
+
+<label>รายละเอียด</label>
+<textarea name="detail"></textarea>
+
+<label>รูปข่าว</label>
+<input type="file" name="images[]" multiple accept="image/*">
+<img id="preview" style="width:150px;margin-top:10px;border-radius:8px;">
+
+<label>ลิงก์ Facebook</label>
+<input type="text" name="link">
+
+<button class="btn-save" type="submit" name="submit">
+บันทึกข่าว
+</button>
+
+<script>
+function previewImage(event){
+var reader = new FileReader();
+reader.onload = function(){
+var output = document.getElementById('preview');
+output.src = reader.result;
+}
+reader.readAsDataURL(event.target.files[0]);
+}
+</script>
+
+</form>
+
+</div>
+
+</div>

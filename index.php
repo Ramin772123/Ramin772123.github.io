@@ -1,0 +1,139 @@
+<?php
+session_start();
+include '../db.php';
+
+if (!isset($_SESSION['admin'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$sql = "SELECT * FROM news ORDER BY id DESC";
+$result = $conn->query($sql);
+$totalNews = ($result && $result->num_rows > 0) ? $result->num_rows : 0;
+?>
+
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการข่าว | Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">CT</div>
+            <div>
+                <h2>ComTech</h2>
+                <p>Admin Panel</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="index.php" class="active">จัดการข่าว</a>
+            <a href="add.php">เพิ่มข่าว</a>
+            <a href="../index.php" target="_blank">ดูหน้าเว็บไซต์</a>
+            <a href="hero.php">เปลี่ยนรูปหน้าแรก</a>
+            <a href="logout.php">ออกจากระบบ</a>
+           
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="dashboard-header">
+            <div>
+                <h1>แดชบอร์ดข่าวสาร</h1>
+                <p>ยินดีต้อนรับ, <?php echo htmlspecialchars($_SESSION['admin']); ?></p>
+            </div>
+
+            <a href="add.php" class="header-btn">+ เพิ่มข่าวใหม่</a>
+        </header>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">จำนวนข่าวทั้งหมด</span>
+                <strong class="stat-number"><?php echo $totalNews; ?></strong>
+            </div>
+
+            <div class="stat-card">
+                <span class="stat-label">สถานะระบบ</span>
+                <strong class="stat-number stat-online">พร้อมใช้งาน</strong>
+            </div>
+        </section>
+
+        <section class="panel-card">
+            <div class="panel-head">
+                <h2>รายการข่าวทั้งหมด</h2>
+                <span class="panel-badge"><?php echo $totalNews; ?> รายการ</span>
+            </div>
+
+
+            <div class="news-list">
+                <?php if ($result && $result->num_rows > 0): ?>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <article class="news-item">
+                            <div class="news-thumb-wrap">
+                                <img
+                                    class="news-thumb"
+                                    src="../uploads/<?php echo htmlspecialchars($row['image']); ?>"
+                                    alt="รูปข่าว"
+                                >
+                            </div>
+
+                            <div class="news-info">
+                                <h3><?php echo htmlspecialchars($row['title']); ?></h3>
+
+                                <p>
+                                    <?php
+                                    $detail = isset($row['detail']) ? $row['detail'] : '';
+                                    echo nl2br(htmlspecialchars(mb_strimwidth($detail, 0, 260, '...')));
+                                    ?>
+                                </p>
+
+                                <div class="news-meta">
+                                    <?php if (!empty($row['DATE'])): ?>
+                                        <span>วันที่: <?php echo htmlspecialchars($row['DATE']); ?></span>
+                                    <?php endif; ?>
+
+                                    <?php if (!empty($row['link'])): ?>
+                                        <a
+                                            href="<?php echo htmlspecialchars($row['link']); ?>"
+                                            target="_blank"
+                                            class="meta-link"
+                                        >
+                                            เปิดลิงก์ข่าว
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="news-actions">
+                                <a href="edit.php?id=<?php echo $row['id']; ?>" class="btn-action btn-edit">แก้ไข</a>
+                                <a
+                                    href="delete.php?id=<?php echo $row['id']; ?>"
+                                    class="btn-action btn-delete"
+                                    onclick="return confirm('ต้องการลบข่าวนี้ใช่หรือไม่?');"
+                                >
+                                    ลบ
+                                </a>
+                            </div>
+                        </article>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <div class="empty-state">
+                        <p>ยังไม่มีข่าวในระบบ</p>
+                        <a href="add.php" class="header-btn">เริ่มเพิ่มข่าว</a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </section>
+    </main>
+</div>
+
+</body>
+</html>

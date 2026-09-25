@@ -1,0 +1,108 @@
+<?php
+session_start();
+include '../db.php';
+
+if(isset($_POST['login'])){
+
+$user=$_POST['username'];
+$pass=$_POST['password'];
+
+$sql="SELECT * FROM admin WHERE username='$user' AND password='$pass'";
+$result=$conn->query($sql);
+
+if($result->num_rows>0){
+
+$_SESSION['admin']=$user;
+header("location:index.php");
+
+}else{
+$error="Username หรือ Password ไม่ถูกต้อง";
+}
+
+}
+?>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Admin Login</title>
+
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+
+</head>
+
+<body class="login-body">
+
+<div class="login-box">
+
+<h2>Admin Login</h2>
+
+<?php if(isset($error)){ ?>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+Swal.fire({
+icon:'error',
+title:'เข้าสู่ระบบไม่สำเร็จ',
+text:'Username หรือ Password ไม่ถูกต้อง',
+confirmButtonColor:'#3085d6'
+});
+
+});
+
+</script>
+
+<?php } ?>
+
+<form method="post">
+
+<input type="text" name="username" placeholder="Username">
+
+<div class="password-box">
+<input type="password" name="password" id="password" placeholder="Password" required>
+
+<span onclick="togglePassword()">👁</span>
+</div>
+
+<button type="submit" name="login">เข้าสู่ระบบ</button>
+
+</form>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+
+<script>
+
+setTimeout(function(){
+
+let alert=document.querySelector(".alert");
+
+if(alert){
+alert.style.display="none";
+}
+
+},3000);
+
+</script>
+
+<script>
+
+function togglePassword(){
+
+let pass=document.getElementById("password");
+
+if(pass.type==="password"){
+pass.type="text";
+}else{
+pass.type="password";
+}
+
+}
+
+</script>
